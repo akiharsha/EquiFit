@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "EquiFit - AI PM Internship Scheme Matcher",
-  description: "AI-powered recommendation engine for Prime Minister Internship Scheme applications. Find your perfect government internship opportunity with our intelligent matching system for young Indians aged 21-24.",
-  keywords: ["PM Internship Scheme", "government internship", "AI matching", "internship finder", "Indian youth", "public service", "ministry internship"],
-  authors: [{ name: "EquiFit Team" }],
-  creator: "EquiFit",
-  publisher: "EquiFit",
+  title: "PMIS Portal - Prime Minister Internship Scheme",
+  description: "Official Prime Minister Internship Scheme portal for young Indians aged 21-24. Find government internship opportunities across ministries and partner organizations with AI-powered matching.",
+  keywords: ["PM Internship Scheme", "PMIS Portal", "government internship", "Indian youth", "public service", "ministry internship", "Government of India"],
+  authors: [{ name: "PMIS Portal Team" }],
+  creator: "Government of India",
+  publisher: "Ministry of Corporate Affairs",
   formatDetection: {
     email: false,
     address: false,
@@ -15,16 +15,16 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL("https://equifit.vercel.app"),
   openGraph: {
-    title: "EquiFit - AI PM Internship Scheme Matcher",
-    description: "AI-powered recommendation engine for Prime Minister Internship Scheme applications for young Indians aged 21-24",
+    title: "PMIS Portal - Prime Minister Internship Scheme",
+    description: "Official Prime Minister Internship Scheme portal for young Indians aged 21-24. Government of India initiative.",
     url: "https://equifit.vercel.app",
-    siteName: "EquiFit",
+    siteName: "PMIS Portal",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "EquiFit - AI PM Internship Scheme Matcher",
+        alt: "PMIS Portal - Prime Minister Internship Scheme",
       },
     ],
     locale: "en_US",
@@ -32,15 +32,15 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "EquiFit - AI PM Internship Scheme Matcher",
-    description: "AI-powered recommendation engine for Prime Minister Internship Scheme applications for young Indians aged 21-24",
+    title: "PMIS Portal - Prime Minister Internship Scheme",
+    description: "Official Prime Minister Internship Scheme portal for young Indians aged 21-24. Government of India initiative.",
     images: ["/og-image.png"],
   },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "EquiFit",
+    title: "PMIS Portal",
   },
   other: {
     "mobile-web-app-capable": "yes",
@@ -68,8 +68,8 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="EquiFit" />
-        <meta name="application-name" content="EquiFit" />
+        <meta name="apple-mobile-web-app-title" content="PMIS Portal" />
+        <meta name="application-name" content="PMIS Portal" />
         <meta name="msapplication-TileColor" content="#3b82f6" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>

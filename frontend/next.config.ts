@@ -1,13 +1,54 @@
 import type { NextConfig } from "next";
-import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.thestatesman.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'data.indianexpress.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.logopeople.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.i.haymarketmedia.asia',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.gstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'yt3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'logodownload.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.pngfind.com',
+      },
+    ],
+  },
 };
 
-export default withPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
-})(nextConfig);
+export default nextConfig;

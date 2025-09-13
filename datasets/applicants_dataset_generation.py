@@ -263,18 +263,14 @@ def build_row(applicant_id: int) -> dict:
     income_cert = generate_income_certificate_id()
     sector_prefs = generate_sector_preferences()
     internship_mode = generate_internship_mode()
-    minority_status = generate_boolean_yes_no(0.15)
     past_participation = generate_boolean_yes_no(0.35)
     prev_sector = generate_previous_internship_sector(past_participation)
-    first_gen_grad = generate_boolean_yes_no(0.4)
-    rural_asp_dist = generate_boolean_yes_no(0.25)
     social_cat, disability_status = generate_social_category_and_disability()
     skills = generate_skills(sector_prefs, field)
     aadhar = generate_aadhar()
     willing_to_relocate = generate_boolean_yes_no(0.6)
     preferred_industry_type = random.choice(["PSU", "MSME", "Startup", "Corporate"])
     preferred_company_size = random.choice(["Small", "Medium", "Large"])
-    internship_duration_pref = random.choice(["1 month", "3 months", "6 months"])
     location_pref = generate_location_preference()
     application_date = generate_application_date()
 
@@ -299,11 +295,8 @@ def build_row(applicant_id: int) -> dict:
         "Family_Permanent_Govt_Employment": family_govt_employment,
         "Sector_Preferences": sector_prefs,
         "Internship_Mode": internship_mode,
-        "Minority_Status": minority_status,
         "Past_Participation": past_participation,
         "Previous_Internship_Sector": prev_sector,
-        "First_Generation_Graduate": first_gen_grad,
-        "Rural_Aspirational_District": rural_asp_dist,
         "Social_Category": social_cat,
         "Skills": skills,
         "Aadhar_Number": aadhar,
@@ -311,7 +304,6 @@ def build_row(applicant_id: int) -> dict:
         "Disability_Status": disability_status,
         "Preferred_Industry_Type": preferred_industry_type,
         "Preferred_Company_Size": preferred_company_size,
-        "Internship_Duration_Preference": internship_duration_pref,
         "Location_Preference": location_pref,
         "Application_Date": application_date,
     }

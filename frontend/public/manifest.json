@@ -1,0 +1,21 @@
+{
+  "name": "EquiFit - AI PM Internship Scheme Matcher",
+  "short_name": "EquiFit",
+  "description": "AI-powered recommendation engine for Prime Minister Internship Scheme applications for young Indians aged 21-24",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["productivity", "education", "business"],
+  "lang": "en",
+  "dir": "ltr"
+}

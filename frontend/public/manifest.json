@@ -1,7 +1,7 @@
 {
-  "name": "EquiFit - AI PM Internship Scheme Matcher",
-  "short_name": "EquiFit",
-  "description": "AI-powered recommendation engine for Prime Minister Internship Scheme applications for young Indians aged 21-24",
+  "name": "PMIS Portal - Prime Minister Internship Scheme",
+  "short_name": "PMIS Portal",
+  "description": "Official Prime Minister Internship Scheme portal for young Indians aged 21-24. Government of India initiative.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

@@ -85,9 +85,10 @@ def generate_education_level() -> str:
         "ITI",
         "Diploma",
         "Graduation",
+        "Post Graduation",
     ]
     # Bias towards higher levels for internship applicants
-    return random.choices(levels, weights=[10, 20, 15, 20, 35])[0]
+    return random.choices(levels, weights=[10, 20, 15, 20, 35, 5])[0]
 
 
 def generate_field_of_study() -> str:
@@ -132,7 +133,8 @@ def generate_income_certificate_id() -> str:
 def generate_sector_preferences() -> str:
     sectors = [
         "IT", "Manufacturing", "Healthcare", "Education", "Electrical", "Software",
-        "Railway", "Finance", "Logistics", "E-commerce", "Automotive", "Telecom"
+        "Railway", "Finance", "Logistics", "E-commerce", "Automotive", "Telecom",
+        "Energy", "Banking"
     ]
     # 2-4 preferences; CSV-safe as semicolon-separated
     k = random.randint(2, 4)
@@ -165,7 +167,7 @@ def generate_social_category_and_disability() -> tuple[str, str]:
 def generate_skills(sector_prefs: str, field_of_study: str) -> str:
     sector_to_skills = {
         "IT": ["python", "java", "sql", "git", "html", "css", "javascript", "react", "testing", "linux"],
-        "Software": ["oop", "data structures", "algorithms", "docker", "api design", "unit testing"],
+        "Software": ["oop", "data structures", "algorithms", "docker", "api design"],
         "Manufacturing": ["cad", "cam", "lean", "six sigma", "cnc", "quality control", "supply chain"],
         "Healthcare": ["first aid", "patient care", "record keeping", "lab techniques", "biostatistics"],
         "Education": ["lesson planning", "teaching", "content creation", "assessment", "classroom management"],
@@ -173,9 +175,11 @@ def generate_skills(sector_prefs: str, field_of_study: str) -> str:
         "Railway": ["safety", "operations", "signal systems", "maintenance", "documentation"],
         "Finance": ["excel", "tally", "accounting", "financial modeling", "gst", "audit"],
         "Logistics": ["inventory", "warehouse ops", "routing", "ms excel", "procurement"],
-        "E-commerce": ["cataloging", "customer support", "order management", "marketplace ops", "seo"],
+        "E-commerce": ["cataloging", "customer support", "order management", "marketplace ops"],
         "Automotive": ["vehicle diagnostics", "cad", "quality checks", "supply chain", "assembly"],
         "Telecom": ["networking", "rf planning", "troubleshooting", "fiber splicing"],
+        "Energy": ["power systems", "safety", "operations", "maintenance", "documentation"],
+        "Banking": ["excel", "accounting", "financial modeling", "audit", "customer service"],
     }
     common_soft_skills = [
         "communication", "teamwork", "problem solving", "time management", "presentation", "writing"
@@ -246,7 +250,8 @@ def generate_previous_internship_sector(past_participation: str) -> str:
         return ""
     return random.choice([
         "IT", "Healthcare", "Manufacturing", "Education", "Finance", "Automotive",
-        "Software", "Telecom", "E-commerce"
+        "Software", "Telecom", "E-commerce", "Electrical", "Railway", "Logistics",
+        "Energy", "Banking"
     ])
 
 

@@ -7,12 +7,13 @@ import Link from "next/link";
 import { 
   User, Calendar, GraduationCap, Building, IndianRupee, FileText, 
   MapPin, Briefcase, Search, CheckCircle, AlertCircle, ArrowLeft, 
-  ArrowRight, X, Plus, Trash2
+  ArrowRight, X, Plus, Trash2, Info, HelpCircle
 } from "lucide-react";
 
 interface FormData {
   name: string;
   gender: string;
+  dateOfBirth: string;
   age: number;
   employeeOrStudent: string;
   educationLevel: string;
@@ -28,6 +29,7 @@ interface FormData {
   previousInternshipSector: string;
   socialCategory: string;
   skills: string[];
+  customSkill: string;
   aadharNumber: string;
   willingnessToRelocate: string;
   disabilityStatus: string;
@@ -38,11 +40,11 @@ interface FormData {
 export default function ApplicationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
-    name: "", gender: "", age: 21, employeeOrStudent: "", educationLevel: "",
+    name: "", gender: "", dateOfBirth: "", age: 21, employeeOrStudent: "", educationLevel: "",
     fieldOfStudy: "", cgpaOrPercentage: "", institutionType: "", familyIncome: "",
     incomeCertificateId: "", familyGovtEmployment: "", sectorPreferences: [],
     internshipMode: "", pastParticipation: "", previousInternshipSector: "",
-    socialCategory: "", skills: [], aadharNumber: "", willingnessToRelocate: "",
+    socialCategory: "", skills: [], customSkill: "", aadharNumber: "", willingnessToRelocate: "",
     disabilityStatus: "", preferredIndustryType: "", locationPreference: ""
   });
   
@@ -51,6 +53,8 @@ export default function ApplicationPage() {
   const [skillSearchTerm, setSkillSearchTerm] = useState("");
   const [showEligibilityError, setShowEligibilityError] = useState(false);
   const [eligibilityMessage, setEligibilityMessage] = useState("");
+  const [showEligibilityModal, setShowEligibilityModal] = useState(false);
+  const [showCustomSkillInput, setShowCustomSkillInput] = useState(false);
 
   const sectors = [
     "IT", "Manufacturing", "Healthcare", "Education", "Electrical", "Software",
@@ -96,6 +100,19 @@ export default function ApplicationPage() {
     return Math.round((percentage / 9.5) * 100) / 100;
   };
 
+  const calculateAgeFromDOB = (dob: string): number => {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
@@ -103,11 +120,30 @@ export default function ApplicationPage() {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
 
+    // Handle date of birth and age calculation
+    if (field === "dateOfBirth" && value) {
+      const age = calculateAgeFromDOB(value);
+      setFormData(prev => ({ ...prev, dateOfBirth: value, age }));
+      checkEligibility("age", age);
+      return;
+    }
+
+    // Handle CGPA conversion without showing conversion text
     if (field === "cgpaOrPercentage" && typeof value === "string" && value.includes("%")) {
       const percentage = parseFloat(value.replace("%", ""));
       if (!isNaN(percentage)) {
         const cgpa = convertPercentageToCGPA(percentage);
-        setFormData(prev => ({ ...prev, [field]: `${cgpa} CGPA (converted from ${percentage}%)` }));
+        setFormData(prev => ({ ...prev, [field]: cgpa.toString() }));
+        return;
+      }
+    }
+
+    // Handle family income eligibility
+    if (field === "familyIncome" && value) {
+      const income = parseInt(value);
+      if (income > 800000) {
+        setShowEligibilityError(true);
+        setEligibilityMessage("You are not eligible. Family income must be ≤ ₹8,00,000. Please read the eligibility criteria.");
       }
     }
 
@@ -120,22 +156,22 @@ export default function ApplicationPage() {
 
     if (field === "age" && (value < 21 || value > 24)) {
       isEligible = false;
-      message = "You are not eligible. Age must be between 21-24 years. Please read the rules listed above.";
+      message = "You are not eligible. Age must be between 21-24 years. Please check the eligibility criteria.";
     }
 
     if (field === "employeeOrStudent" && value === "Yes") {
       isEligible = false;
-      message = "You are not eligible. Full-time employees/students are not allowed. Please read the rules listed above.";
+      message = "You are not eligible. Full-time employees/students are not allowed. Distance learning is accepted. Please check the eligibility criteria.";
     }
 
     if (field === "institutionType" && topTierUniversities.some(uni => value.includes(uni))) {
       isEligible = false;
-      message = "You are not eligible. Students from top-tier universities are not allowed. Please read the rules listed above.";
+      message = "You are not eligible. Students from top-tier universities (IIT, NIT, BITS, etc.) are not allowed. Please check the eligibility criteria.";
     }
 
     if (field === "familyGovtEmployment" && value === "Yes") {
       isEligible = false;
-      message = "You are not eligible. Family members with permanent government employment are not allowed. Please read the rules listed above.";
+      message = "You are not eligible. Family members with permanent government employment are not allowed. Please check the eligibility criteria.";
     }
 
     if (!isEligible) {
@@ -152,6 +188,17 @@ export default function ApplicationPage() {
       setFormData(prev => ({ ...prev, skills: [...prev.skills, skill] }));
     }
     setSkillSearchTerm("");
+  };
+
+  const addCustomSkill = () => {
+    if (formData.customSkill.trim() && !formData.skills.includes(formData.customSkill.trim())) {
+      setFormData(prev => ({ 
+        ...prev, 
+        skills: [...prev.skills, prev.customSkill.trim()],
+        customSkill: ""
+      }));
+      setShowCustomSkillInput(false);
+    }
   };
 
   const removeSkill = (skillToRemove: string) => {
@@ -267,27 +314,128 @@ export default function ApplicationPage() {
       <nav className="bg-white/80 backdrop-blur-sm shadow-lg border-b-4 border-orange-500 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <Link href="/login" className="flex items-center space-x-4">
-              <ArrowLeft className="w-6 h-6 text-gray-600 hover:text-orange-600 transition-colors" />
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-white rounded-full border-4 border-orange-500 flex items-center justify-center p-2">
-                  <Image
-                    src="https://www.logopeople.in/wp-content/uploads/2013/01/government-of-india.jpg"
-                    alt="Government of India"
-                    width={48}
-                    height={48}
-                    className="rounded-full object-contain"
-                  />
+            <div className="flex justify-between items-center w-full">
+              <Link href="/login" className="flex items-center space-x-4">
+                <ArrowLeft className="w-6 h-6 text-gray-600 hover:text-orange-600 transition-colors" />
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-white rounded-full border-4 border-orange-500 flex items-center justify-center p-2">
+                    <Image
+                      src="https://www.logopeople.in/wp-content/uploads/2013/01/government-of-india.jpg"
+                      alt="Government of India"
+                      width={48}
+                      height={48}
+                      className="rounded-full object-contain"
+                    />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-2xl font-bold govt-orange">PMIS Portal</div>
+                    <div className="text-sm text-gray-600">Prime Minister Internship Scheme</div>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <div className="text-2xl font-bold govt-orange">PMIS Portal</div>
-                  <div className="text-sm text-gray-600">Prime Minister Internship Scheme</div>
-                </div>
-              </div>
-            </Link>
+              </Link>
+              
+              {/* Eligibility Criteria Button */}
+              <button
+                onClick={() => setShowEligibilityModal(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-xl transition-colors"
+              >
+                <Info className="w-5 h-5" />
+                <span className="font-medium">Eligibility Criteria</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
+
+      {/* Eligibility Criteria Modal */}
+      <AnimatePresence>
+        {showEligibilityModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Info className="w-8 h-8 text-orange-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Eligibility Criteria</h3>
+                <p className="text-gray-600">Prime Minister Internship Scheme Requirements</p>
+              </div>
+
+              <div className="space-y-4 text-left">
+                <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
+                  <h4 className="font-semibold text-orange-800 mb-2 flex items-center">
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Age Requirement
+                  </h4>
+                  <p className="text-orange-700">Only candidates aged 21-24 years (inclusive) are eligible to apply.</p>
+                </div>
+
+                <div className="bg-red-50 p-4 rounded-xl border border-red-200">
+                  <h4 className="font-semibold text-red-800 mb-2 flex items-center">
+                    <X className="w-5 h-5 mr-2" />
+                    Institution Restrictions
+                  </h4>
+                  <p className="text-red-700">Students from top-tier universities (IIT, NIT, BITS, Manipal, SRM, VIT, etc.) are not eligible.</p>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <h4 className="font-semibold text-blue-800 mb-2 flex items-center">
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Employment Status
+                  </h4>
+                  <p className="text-blue-700">You must not be enrolled as a full-time student or full-time employee. Distance learning is accepted.</p>
+                </div>
+
+                <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+                  <h4 className="font-semibold text-green-800 mb-2 flex items-center">
+                    <IndianRupee className="w-5 h-5 mr-2" />
+                    Family Income
+                  </h4>
+                  <p className="text-green-700">Family income must be ≤ ₹8,00,000 per annum.</p>
+                </div>
+
+                <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                  <h4 className="font-semibold text-purple-800 mb-2 flex items-center">
+                    <Building className="w-5 h-5 mr-2" />
+                    Government Employment
+                  </h4>
+                  <p className="text-purple-700">No family member should be working as a permanent full-time government employee.</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <Briefcase className="w-5 h-5 mr-2" />
+                    Internship Details
+                  </h4>
+                  <ul className="text-gray-700 space-y-1">
+                    <li>• Monthly stipend: ₹5,000 (₹4,500 from government + ₹500 from company)</li>
+                    <li>• Duration: 12 months only</li>
+                    <li>• Opportunity to work with top companies and government organizations</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => setShowEligibilityModal(false)}
+                  className="govt-button px-8"
+                >
+                  Got it, Continue Application
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Eligibility Error Modal */}
       <AnimatePresence>
@@ -408,30 +556,31 @@ export default function ApplicationPage() {
                   )}
                 </div>
 
-                {/* Age */}
+                {/* Date of Birth */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Age * (Only 21-24 years allowed)
+                    Date of Birth * (Age must be 21-24 years)
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <select
-                      value={formData.age}
-                      onChange={(e) => handleInputChange("age", parseInt(e.target.value))}
+                    <input
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+                      min="1999-01-01"
+                      max="2003-12-31"
                       className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
-                        errors.age ? "border-red-500" : "border-gray-300"
+                        errors.dateOfBirth ? "border-red-500" : "border-gray-300"
                       }`}
-                    >
-                      <option value="">Select your age</option>
-                      {[21, 22, 23, 24].map(age => (
-                        <option key={age} value={age}>{age} years</option>
-                      ))}
-                    </select>
+                    />
                   </div>
-                  {errors.age && (
+                  {formData.dateOfBirth && (
+                    <p className="mt-1 text-sm text-gray-600">Age: {formData.age} years</p>
+                  )}
+                  {errors.dateOfBirth && (
                     <p className="mt-1 text-sm text-red-600 flex items-center">
                       <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.age}
+                      {errors.dateOfBirth}
                     </p>
                   )}
                 </div>
@@ -442,7 +591,7 @@ export default function ApplicationPage() {
                     Are you a full-time employee or full-time student? *
                   </label>
                   <p className="text-sm text-gray-500 mb-3">
-                    Only "No" values are accepted. Full-time employees/students are not eligible.
+                    Distance learning is accepted. Full-time employees/students are not eligible.
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     {["Yes", "No"].map((option) => (
@@ -635,7 +784,7 @@ export default function ApplicationPage() {
                     Is any family member working as full-time permanent government employee? *
                   </label>
                   <p className="text-sm text-red-500 mb-3">
-                    Only "No" values are accepted. Family members with government employment make you ineligible.
+                    Family members with permanent government employment make you ineligible.
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     {["Yes", "No"].map((option) => (
@@ -853,6 +1002,47 @@ export default function ApplicationPage() {
                           {skill}
                         </button>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Add Others Option */}
+                  <div className="mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomSkillInput(!showCustomSkillInput)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Custom Skill</span>
+                    </button>
+                  </div>
+
+                  {/* Custom Skill Input */}
+                  {showCustomSkillInput && (
+                    <div className="mb-4 p-4 bg-gray-50 rounded-xl">
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          value={formData.customSkill}
+                          onChange={(e) => handleInputChange("customSkill", e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          placeholder="Enter custom skill"
+                        />
+                        <button
+                          type="button"
+                          onClick={addCustomSkill}
+                          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                        >
+                          Add
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowCustomSkillInput(false)}
+                          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   )}
 

@@ -1,0 +1,21 @@
+Company_ID,Sector,Skills_Required,Minimum_CGPA_Percentage,City,Mode_Hybrid,Mode_Onsite,Mode_Remote,Education_Level_Encoded
+101,E-commerce,maintenance; marketplace ops; operations; power systems; safety,6.3,Chennai,False,False,True,3
+102,IT,communication; css; html; java; linux; teamwork; writing,6.8,Lucknow,True,False,False,3
+103,Railway,accounting; audit; documentation; excel; operations,8.6,Pune,False,False,True,2
+104,Automotive,documentation; presentation; teamwork; time management,9.2,Bhopal,True,False,False,4
+105,Automotive,cad; communication; problem solving; sql; time management,0,Hyderabad,False,False,True,4
+106,IT,css; electrical; java; problem solving; python; teamwork; testing,9.1,Jaipur,False,True,False,2
+107,Healthcare,lab techniques; operations; patient care; quality control; safety; supply chain; teamwork; writing,9.3,Noida,False,False,True,3
+108,IT,communication; java; linux; operations; writing,77%,Hyderabad,False,True,False,0
+109,Logistics,ms excel; procurement; quality control; safety; warehouse ops,6.4,Ahmedabad,False,True,False,4
+110,E-commerce,accounting; customer service; presentation; teamwork,0,Mumbai,True,False,False,3
+111,Education,classroom management; communication; lesson planning; maintenance; problem solving; safety; teaching; time management,0,Kochi,False,False,True,3
+112,Banking,communication; javascript; react; writing,0,Chandigarh,True,False,False,3
+113,Finance,accounting; audit; excel; presentation; python; time management; writing,9.0,Mumbai,False,True,False,3
+114,Electrical,html; react; sql; time management; writing,0,Bhopal,False,False,True,4
+115,Logistics,cad; cnc; inventory; ms excel; problem solving; procurement; routing; six sigma,8.0,Noida,False,True,False,2
+116,Telecom,networking; presentation; problem solving; teamwork; time management,63%,Delhi,False,False,True,2
+117,Healthcare,documentation; operations; problem solving; record keeping; safety; writing,9.3,Chennai,False,False,True,2
+118,Telecom,css; fiber splicing; git; html; presentation; react; sql; testing,61%,Bengaluru,True,False,False,2
+119,Telecom,fiber splicing; operations; presentation; quality control; rf planning; teamwork; time management; troubleshooting,7.3,Mumbai,False,False,True,3
+120,Education,assessment; audit; classroom management; content creation; excel; presentation; teamwork; writing,8.3,Ahmedabad,True,False,False,4

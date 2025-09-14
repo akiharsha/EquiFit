@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { 
   Brain, 
   Target, 
@@ -156,12 +157,12 @@ export default function Home() {
 
             <div className="hidden md:block">
               <div className="ml-4 flex items-center space-x-4">
-                <button className="text-gray-700 hover:text-orange-600 px-4 py-2 rounded text-sm font-medium transition-colors duration-200 border border-gray-300">
+                <Link href="/login" className="text-gray-700 hover:text-orange-600 px-4 py-2 rounded text-sm font-medium transition-colors duration-200 border border-gray-300">
                   Login
-                </button>
-                <button className="govt-button">
+                </Link>
+                <Link href="/login" className="govt-button">
                   Register Now
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -199,12 +200,12 @@ export default function Home() {
                   </a>
                 ))}
                 <div className="pt-4 pb-2 border-t border-gray-200 space-y-3">
-                  <button className="text-gray-700 hover:text-orange-600 hover:bg-orange-50 block px-4 py-3 rounded-lg text-base font-medium w-full text-left transition-all duration-200">
+                  <Link href="/login" className="text-gray-700 hover:text-orange-600 hover:bg-orange-50 block px-4 py-3 rounded-lg text-base font-medium w-full text-left transition-all duration-200">
                     Login
-                  </button>
-                  <button className="govt-button w-full justify-center">
+                  </Link>
+                  <Link href="/login" className="govt-button w-full justify-center">
                     Register Now
-                  </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
@@ -256,10 +257,10 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16"
             >
-              <button className="govt-button flex items-center space-x-3 text-lg font-semibold">
+              <Link href="/login" className="govt-button flex items-center space-x-3 text-lg font-semibold">
                 <span>Find Internships</span>
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Link>
               <button className="govt-button-secondary flex items-center space-x-3 text-lg font-semibold">
                 <Play className="w-5 h-5" />
                 <span>Watch Tutorial</span>
@@ -547,10 +548,10 @@ export default function Home() {
               Start your journey in public service today with our AI-powered platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <button className="govt-button flex items-center justify-center space-x-3 text-lg font-semibold">
+              <Link href="/login" className="govt-button flex items-center justify-center space-x-3 text-lg font-semibold">
                 <span>Register Now</span>
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Link>
               <button className="govt-button-secondary flex items-center justify-center space-x-3 text-lg font-semibold">
                 <Play className="w-5 h-5" />
                 <span>Watch Tutorial</span>

@@ -261,10 +261,6 @@ export default function Home() {
                 <span>Find Internships</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <button className="govt-button-secondary flex items-center space-x-3 text-lg font-semibold">
-                <Play className="w-5 h-5" />
-                <span>Watch Tutorial</span>
-              </button>
             </motion.div>
 
             {/* Stats */}
@@ -552,10 +548,6 @@ export default function Home() {
                 <span>Register Now</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <button className="govt-button-secondary flex items-center justify-center space-x-3 text-lg font-semibold">
-                <Play className="w-5 h-5" />
-                <span>Watch Tutorial</span>
-              </button>
             </div>
             <p className="text-sm text-gray-500 mt-4">
               Completely Free • Government of India Initiative

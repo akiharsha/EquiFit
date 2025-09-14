@@ -138,12 +138,18 @@ export default function ApplicationPage() {
       }
     }
 
-    // Handle family income eligibility
+    // Handle family income eligibility and validation
     if (field === "familyIncome" && value) {
       const income = parseInt(value);
       if (income > 800000) {
+        // Don't update the form data if it exceeds the limit
         setShowEligibilityError(true);
         setEligibilityMessage("You are not eligible. Family income must be ≤ ₹8,00,000. Please read the eligibility criteria.");
+        return; // Don't update the form data
+      } else {
+        // Clear any previous eligibility errors for family income
+        setShowEligibilityError(false);
+        setEligibilityMessage("");
       }
     }
 
@@ -247,6 +253,9 @@ export default function ApplicationPage() {
         if (!formData.cgpaOrPercentage) stepErrors.cgpaOrPercentage = "CGPA/Percentage is required";
         if (!formData.institutionType) stepErrors.institutionType = "Institution type is required";
         if (!formData.familyIncome) stepErrors.familyIncome = "Family income is required";
+        if (formData.familyIncome && parseInt(formData.familyIncome) > 800000) {
+          stepErrors.familyIncome = "Family income must not exceed ₹8,00,000";
+        }
         if (!formData.incomeCertificateId) stepErrors.incomeCertificateId = "Income certificate ID is required";
         if (!formData.familyGovtEmployment) stepErrors.familyGovtEmployment = "This field is required";
         break;
@@ -1246,7 +1255,7 @@ export default function ApplicationPage() {
                 ) : (
                   <CheckCircle className="w-5 h-5" />
                 )}
-                <span>{isLoading ? "Submitting..." : "Submit Application"}</span>
+                <span>{isLoading ? "Finding Matches..." : "Show Matches"}</span>
               </button>
             )}
           </div>

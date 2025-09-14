@@ -1,7 +1,6 @@
 import csv
 import os
 import random
-import string
 from datetime import datetime, timedelta
 
 
@@ -56,10 +55,10 @@ def get_ownership_types() -> list[str]:
 
 
 def get_skills_pool() -> dict:
-    """Return the skills pool from applicants dataset"""
+    """Return the skills pool - unified with applicants dataset"""
     return {
         "IT": ["python", "java", "sql", "git", "html", "css", "javascript", "react", "testing", "linux"],
-        "Software": ["oop", "data structures", "algorithms", "docker", "api design", "unit testing"],
+        "Software": ["oop", "data structures", "algorithms", "docker", "api design"],
         "Manufacturing": ["cad", "cam", "lean", "six sigma", "cnc", "quality control", "supply chain"],
         "Healthcare": ["first aid", "patient care", "record keeping", "lab techniques", "biostatistics"],
         "Education": ["lesson planning", "teaching", "content creation", "assessment", "classroom management"],
@@ -67,15 +66,15 @@ def get_skills_pool() -> dict:
         "Railway": ["safety", "operations", "signal systems", "maintenance", "documentation"],
         "Finance": ["excel", "tally", "accounting", "financial modeling", "gst", "audit"],
         "Logistics": ["inventory", "warehouse ops", "routing", "ms excel", "procurement"],
-        "E-commerce": ["cataloging", "customer support", "order management", "marketplace ops", "seo"],
+        "E-commerce": ["cataloging", "customer support", "order management", "marketplace ops"],
         "Automotive": ["vehicle diagnostics", "cad", "quality checks", "supply chain", "assembly"],
         "Telecom": ["networking", "rf planning", "troubleshooting", "fiber splicing"],
         "Energy": ["power systems", "safety", "operations", "maintenance", "documentation"],
         "Banking": ["excel", "accounting", "financial modeling", "audit", "customer service"],
         "Oil & Gas": ["safety", "operations", "maintenance", "documentation", "quality control"],
         "Steel": ["cad", "quality control", "supply chain", "safety", "operations"],
-        "FMCG": ["supply chain", "quality control", "marketing", "operations", "logistics"],
-        "Coal": ["safety", "operations", "maintenance", "documentation", "environmental"],
+        "FMCG": ["supply chain", "quality control", "operations"],
+        "Coal": ["safety", "operations", "maintenance", "documentation"],
         "Power": ["power systems", "electrical", "safety", "operations", "maintenance"]
     }
 
@@ -137,10 +136,11 @@ def get_internship_modes() -> list[str]:
 
 
 def get_sectors() -> list[str]:
-    """Return sector categories for internships"""
+    """Return sector categories for internships - unified with applicants dataset"""
     return [
-        "IT", "Core Engineering", "Healthcare", "Finance", "Rural Development",
-        "Manufacturing", "Education", "Banking", "Energy", "Telecom", "Logistics"
+        "IT", "Manufacturing", "Healthcare", "Education", "Electrical", "Software",
+        "Railway", "Finance", "Logistics", "E-commerce", "Automotive", "Telecom",
+        "Energy", "Banking"
     ]
 
 

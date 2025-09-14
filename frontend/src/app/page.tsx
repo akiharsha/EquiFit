@@ -56,18 +56,18 @@ export default function Home() {
   const features = [
     {
       icon: Brain,
-      title: "AI-Powered Matching",
-      description: "Advanced machine learning algorithms analyze your profile and match you with the most suitable PM Internship Scheme opportunities across various ministries."
+      title: "🤖 Smart AI Matching",
+      description: "Our advanced AI engine analyzes 50+ data points from your profile to instantly match you with the perfect PM Internship opportunities. One-click intelligent recommendations!"
     },
     {
       icon: Target,
-      title: "Government Focused",
-      description: "Get matched with internships in Indian ministries, departments, and government organizations based on your skills and interests."
+      title: "🎯 AI-Curated Opportunities",
+      description: "Machine learning algorithms scan through 500+ government positions across ministries to find your ideal match based on skills, interests, and career goals."
     },
     {
       icon: Zap,
-      title: "Instant Results",
-      description: "Receive personalized recommendations in seconds, not weeks of manual searching through government portals."
+      title: "⚡ Instant AI Results",
+      description: "Get personalized AI-powered recommendations in under 3 seconds. No more manual searching - let our intelligent system do the work for you!"
     },
     {
       icon: Users,
@@ -245,10 +245,15 @@ export default function Home() {
                 <span className="text-display govt-green">Internship Scheme</span>
               </div>
               <div className="text-hero text-gray-800 mb-6">PMIS Portal</div>
-              <p className="text-body-large text-gray-700 max-w-4xl mx-auto">
-                Empowering young Indians (21-24 years) with government internship opportunities across ministries and partner organizations. 
-                Find your perfect match with our AI-powered recommendation system.
+              <p className="text-body-large text-gray-700 max-w-4xl mx-auto mb-4">
+                Empowering young Indians (21-24 years) with government internship opportunities across ministries and partner organizations.
               </p>
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full inline-flex items-center space-x-2 font-semibold text-lg shadow-lg">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>🤖 AI-Powered Smart Matching Engine</span>
+              </div>
             </motion.div>
 
             <motion.div
@@ -257,8 +262,12 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16"
             >
-              <Link href="/login" className="govt-button flex items-center space-x-3 text-lg font-semibold">
-                <span>Find Internships</span>
+              <Link href="/login" className="govt-button flex items-center space-x-3 text-lg font-semibold relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Get AI Matches</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
@@ -271,9 +280,9 @@ export default function Home() {
               className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
             >
               {[
-                { number: "5K+", label: "Successful Matches" },
+                { number: "5K+", label: "AI-Generated Matches" },
                 { number: "50+", label: "Government Ministries" },
-                { number: "98%", label: "Success Rate" }
+                { number: "98%", label: "AI Accuracy Rate" }
               ].map((stat, index) => (
                 <motion.div 
                   key={index} 
@@ -379,9 +388,13 @@ export default function Home() {
             <h2 className="text-hero mb-6">
               Why Choose <span className="govt-orange">PMIS Portal</span>?
             </h2>
-            <p className="text-body-large text-gray-700 max-w-3xl mx-auto">
-              Our advanced AI technology revolutionizes how young Indians (21-24) find and apply for Prime Minister Internship Scheme opportunities.
+            <p className="text-body-large text-gray-700 max-w-3xl mx-auto mb-4">
+              Our revolutionary AI recommendation engine transforms how young Indians discover their perfect government internship match.
             </p>
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+              <span>🚀</span>
+              <span>Powered by Advanced Machine Learning</span>
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -539,10 +552,14 @@ export default function Home() {
             <h2 className="text-hero mb-6">
               Ready to Find Your <span className="govt-orange">Dream Government Internship</span>?
             </h2>
-            <p className="text-body-large text-gray-800 mb-8 max-w-2xl mx-auto">
+            <p className="text-body-large text-gray-800 mb-6 max-w-2xl mx-auto">
               Join thousands of young Indians (21-24) who have already found their perfect PM Internship Scheme match. 
-              Start your journey in public service today with our AI-powered platform.
+              Experience the power of AI-driven career matching today!
             </p>
+            <div className="bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full inline-flex items-center space-x-2 font-semibold text-lg shadow-lg mb-6">
+              <span>🎯</span>
+              <span>One-Click AI Matching • Instant Results</span>
+            </div>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link href="/login" className="govt-button flex items-center justify-center space-x-3 text-lg font-semibold">
                 <span>Register Now</span>

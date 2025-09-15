@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
   User, Calendar, GraduationCap, Building, IndianRupee, FileText, 
   MapPin, Briefcase, Search, CheckCircle, AlertCircle, ArrowLeft, 
@@ -38,6 +39,7 @@ interface FormData {
 }
 
 export default function ApplicationPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     name: "", gender: "", dateOfBirth: "", age: 21, employeeOrStudent: "", educationLevel: "",
@@ -111,6 +113,13 @@ export default function ApplicationPage() {
     }
     
     return age;
+  };
+
+  // Income Certificate ID validation function
+  const validateIncomeCertificateId = (id: string): boolean => {
+    // Format: XX-YYYY-XXXXXXXX (State Code - Year - 8 digits)
+    const pattern = /^[A-Z]{2}-\d{4}-\d{8}$/;
+    return pattern.test(id);
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -256,7 +265,11 @@ export default function ApplicationPage() {
         if (formData.familyIncome && parseInt(formData.familyIncome) > 800000) {
           stepErrors.familyIncome = "Family income must not exceed ₹8,00,000";
         }
-        if (!formData.incomeCertificateId) stepErrors.incomeCertificateId = "Income certificate ID is required";
+        if (!formData.incomeCertificateId) {
+          stepErrors.incomeCertificateId = "Income certificate ID is required";
+        } else if (!validateIncomeCertificateId(formData.incomeCertificateId)) {
+          stepErrors.incomeCertificateId = "Invalid format. Use: XX-YYYY-XXXXXXXX (e.g., MH-2024-12345678)";
+        }
         if (!formData.familyGovtEmployment) stepErrors.familyGovtEmployment = "This field is required";
         break;
       case 3:
@@ -301,7 +314,10 @@ export default function ApplicationPage() {
     setTimeout(() => {
       setIsLoading(false);
       console.log("Application submitted:", formData);
-      alert("Application submitted successfully! You will receive a confirmation email shortly.");
+      // Store form data in localStorage for recommendations
+      localStorage.setItem('applicationData', JSON.stringify(formData));
+      // Navigate to recommendations page
+      router.push('/recommendations');
     }, 3000);
   };
 
@@ -779,6 +795,9 @@ export default function ApplicationPage() {
                       placeholder="e.g., MH-2024-12345678"
                     />
                   </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Format: State Code - Year - 8 digits (e.g., MH-2024-12345678)
+                  </p>
                   {errors.incomeCertificateId && (
                     <p className="mt-1 text-sm text-red-600 flex items-center">
                       <AlertCircle className="w-4 h-4 mr-1" />
@@ -891,7 +910,7 @@ export default function ApplicationPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Internship Mode *</label>
                   <div className="grid grid-cols-3 gap-4">
-                    {["Remote", "In-person", "Hybrid"].map((mode) => (
+                    {["Remote", "Onsite", "Hybrid"].map((mode) => (
                       <button
                         key={mode}
                         type="button"
@@ -916,7 +935,7 @@ export default function ApplicationPage() {
 
                 {/* Past Participation */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Past Participation *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Do you have any experience? *</label>
                   <div className="grid grid-cols-2 gap-4">
                     {["Yes", "No"].map((option) => (
                       <button

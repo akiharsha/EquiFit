@@ -1,3 +1,1 @@
-# EquiFit   check
-hasini dataset final
-is pull request working? hooooo
+# EquiFit back to normal

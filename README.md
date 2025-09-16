@@ -1,1 +1,1 @@
-# EquiFit back to hasini
+# EquiFit

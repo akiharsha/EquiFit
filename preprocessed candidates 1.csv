@@ -1,0 +1,7 @@
+Applicant_ID,Name,Age,Gender,Education_Level,Degree_Stream,Institution_Type,Skills,Sector_Preferences,Location_Preference,Background,cgpa_or_percentage
+APP001,Arjun Mehta,22,Male,Graduate,BSc Computer Science,State University,"Python, SQL, Machine Learning, Data Visualization","IT, Corporate","Bengaluru, Remote","Urban, middle-class, strong digital exposure",3.784584508610675
+APP002,Kavya Nair,24,Female,12th Pass,Commerce,CBSE School,"Communication, MS Office, Social Media Handling","Marketing, Startup, Retail",Delhi NCR,"Semi-urban, first-gen learner, limited English",7.79750120693428
+APP003,Ramesh Kumar,22,Male,Graduate,B.Com,State University,"Accounting, Tally, Excel","Finance, PSU, MSME",Hyderabad,"Rural, first in family to go to college",5.350562598980989
+APP004,Priya Sharma,23,Female,Diploma,ITI Electrical,Govt ITI,"Electrical wiring, CAD basics, AutoCAD","Manufacturing, MSME, Govt utilities",Chennai,"Lower-income, limited digital exposure",7.841016548988549
+APP005,Sameer Ali,22,Male,Diploma,Polytechnic Mechanical,Govt Polytechnic,"CAD, SolidWorks, Machine Design","Manufacturing, PSU, Automobile","Pune, Mumbai","Urban edge of rural district, low English fluency",8.77618672268678
+APP006,Anjali Verma,21,Female,Graduate,BA Sociology,Govt College,"Communication, Basic Computer, Event Management","NGOs, Education, Rural Development",Jharkhand (home district),"Tribal district, very low digital literacy",4.737611658998367

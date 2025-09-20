@@ -7,6 +7,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
 import time
 import re
+import sqlite3
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -18,8 +19,76 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir
 INTERNSHIPS_CSV = os.path.join(PROJECT_ROOT, "internships preprocessed 1.csv")
 CANDIDATES_CSV = os.path.join(PROJECT_ROOT, "preprocessed candidates 1.csv")
 
-# Load internships dataset once
-internships_df = pd.read_csv(INTERNSHIPS_CSV)
+# Persistence config
+PERSISTENCE = os.getenv("PERSISTENCE", "csv").lower()  # 'csv' or 'sqlite'
+BACKEND_DB_URL = os.getenv("BACKEND_DB_URL", "pmis.db")  # file path for sqlite
+
+def get_sqlite_conn():
+    db_path = BACKEND_DB_URL if os.path.isabs(BACKEND_DB_URL) else os.path.join(PROJECT_ROOT, BACKEND_DB_URL)
+    conn = sqlite3.connect(db_path)
+    return conn
+
+# Load data (CSV or SQLite)
+def load_internships_df() -> pd.DataFrame:
+    if PERSISTENCE == "sqlite":
+        conn = get_sqlite_conn()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS internships (
+                Internship_ID TEXT PRIMARY KEY,
+                Title TEXT,
+                Sector TEXT,
+                Location TEXT,
+                Mode TEXT,
+                Industry_Type TEXT,
+                Job_Description TEXT,
+                Skills_Required TEXT,
+                Min_CGPA REAL,
+                Min_Education_Level TEXT
+            )
+            """
+        )
+        conn.commit()
+        # Load all
+        df = pd.read_sql_query("SELECT * FROM internships", conn)
+        # If empty and CSV exists, seed from CSV
+        if df.empty and os.path.exists(INTERNSHIPS_CSV):
+            try:
+                seed = pd.read_csv(INTERNSHIPS_CSV)
+                # Normalize columns
+                base_cols = [
+                    "Internship_ID","Title","Sector","Location","Mode","Industry_Type",
+                    "Job_Description","Skills_Required","Min_CGPA","Min_Education_Level"
+                ]
+                seed = seed[base_cols]
+                # Upsert rows
+                for _, r in seed.iterrows():
+                    cur.execute(
+                        """
+                        INSERT OR REPLACE INTO internships (
+                          Internship_ID, Title, Sector, Location, Mode, Industry_Type,
+                          Job_Description, Skills_Required, Min_CGPA, Min_Education_Level
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            str(r.get("Internship_ID","")), str(r.get("Title","")), str(r.get("Sector","")),
+                            str(r.get("Location","")), str(r.get("Mode","")), str(r.get("Industry_Type","")),
+                            str(r.get("Job_Description","")), str(r.get("Skills_Required","")),
+                            float(r.get("Min_CGPA", 0.0)) if pd.notna(r.get("Min_CGPA")) else 0.0,
+                            str(r.get("Min_Education_Level",""))
+                        )
+                    )
+                conn.commit()
+                df = pd.read_sql_query("SELECT * FROM internships", conn)
+            except Exception:
+                pass
+        conn.close()
+        return df
+    else:
+        return pd.read_csv(INTERNSHIPS_CSV)
+
+internships_df = load_internships_df()
 try:
     candidates_df = pd.read_csv(CANDIDATES_CSV)
 except Exception:
@@ -162,7 +231,11 @@ class InternshipPayload(BaseModel):
 
 
 def _persist_internships():
-    # Persist current internships_df to CSV to keep state across restarts
+    # Persist depending on configured storage
+    if PERSISTENCE == "sqlite":
+        # Data is already written per-operation; nothing to do
+        return
+    # CSV fallback
     try:
         base_cols = [
             "Internship_ID",
@@ -176,12 +249,9 @@ def _persist_internships():
             "Min_CGPA",
             "Min_Education_Level",
         ]
-        # Only write base columns to avoid persisting derived TF-IDF vectors
-        # If any base column is missing (edge cases), fallback to available intersection
         cols_to_write = [c for c in base_cols if c in internships_df.columns]
         internships_df[cols_to_write].to_csv(INTERNSHIPS_CSV, index=False)
     except Exception as e:
-        # Log to console in absence of logging infra
         print(f"[WARN] Failed to persist internships CSV: {e}")
 
 
@@ -242,7 +312,28 @@ def admin_add_internship(payload: InternshipPayload, _: Dict[str, Any] = Depends
         "Min_CGPA": payload.Min_CGPA if payload.Min_CGPA is not None else 0.0,
         "Min_Education_Level": payload.Min_Education_Level or "",
     }
-    internships_df = pd.concat([internships_df, pd.DataFrame([row])], ignore_index=True)
+    # Persist to DB if configured
+    if PERSISTENCE == "sqlite":
+        conn = get_sqlite_conn()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT OR REPLACE INTO internships (
+              Internship_ID, Title, Sector, Location, Mode, Industry_Type,
+              Job_Description, Skills_Required, Min_CGPA, Min_Education_Level
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                row["Internship_ID"], row["Title"], row["Sector"], row["Location"], row["Mode"], row["Industry_Type"],
+                row["Job_Description"], row["Skills_Required"], float(row["Min_CGPA"] or 0.0), row["Min_Education_Level"]
+            )
+        )
+        conn.commit()
+        conn.close()
+        # Update in-memory df
+        internships_df = pd.concat([internships_df, pd.DataFrame([row])], ignore_index=True)
+    else:
+        internships_df = pd.concat([internships_df, pd.DataFrame([row])], ignore_index=True)
     # Recompute TF-IDF vectors for new row
     try:
         # Update the precomputed vectors for the appended row
@@ -267,6 +358,27 @@ def admin_update_internship(internship_id: str, payload: InternshipPayload, _: D
         val = getattr(payload, field)
         if val is not None:
             internships_df.at[i, field] = val
+    # Persist to DB if configured
+    if PERSISTENCE == "sqlite":
+        conn = get_sqlite_conn()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE internships
+            SET Title = ?, Sector = ?, Location = ?, Mode = ?, Industry_Type = ?,
+                Job_Description = ?, Skills_Required = ?, Min_CGPA = ?, Min_Education_Level = ?
+            WHERE Internship_ID = ?
+            """,
+            (
+                str(internships_df.at[i, "Title"]), str(internships_df.at[i, "Sector"]), str(internships_df.at[i, "Location"]),
+                str(internships_df.at[i, "Mode"]), str(internships_df.at[i, "Industry_Type"]),
+                str(internships_df.at[i, "Job_Description"]), str(internships_df.at[i, "Skills_Required"]),
+                float(internships_df.at[i, "Min_CGPA"] or 0.0), str(internships_df.at[i, "Min_Education_Level"]),
+                str(internship_id)
+            )
+        )
+        conn.commit()
+        conn.close()
     # Recompute vectors for updated row
     try:
         jd_vec = tfidf.transform([str(internships_df.at[i, "Job_Description"])])
@@ -284,6 +396,13 @@ def admin_delete_internship(internship_id: str, _: Dict[str, Any] = Depends(veri
     global internships_df
     before = len(internships_df)
     internships_df = internships_df[internships_df["Internship_ID"].astype(str) != str(internship_id)].reset_index(drop=True)
+    # Persist to DB if configured
+    if PERSISTENCE == "sqlite":
+        conn = get_sqlite_conn()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM internships WHERE Internship_ID = ?", (str(internship_id),))
+        conn.commit()
+        conn.close()
     if len(internships_df) == before:
         raise HTTPException(status_code=404, detail="Internship not found")
     _persist_internships()

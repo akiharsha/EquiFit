@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: equifit-backend
+    rootDir: backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_JWT_SECRET
+        sync: false
+      - key: PERSISTENCE
+        value: sqlite
+      - key: BACKEND_DB_URL
+        value: pmis.db
+
+  - type: web
+    name: equifit-frontend
+    rootDir: frontend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE
+        # Set this to the backend service URL after first deploy, e.g. https://equifit-backend.onrender.com
+        value: ""

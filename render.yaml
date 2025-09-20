@@ -5,8 +5,9 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
+    healthCheckTimeoutSeconds: 120
     envVars:
       - key: ADMIN_USERNAME
         sync: false
@@ -14,6 +15,8 @@ services:
         sync: false
       - key: ADMIN_JWT_SECRET
         sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.3
       - key: PERSISTENCE
         value: sqlite
       - key: BACKEND_DB_URL

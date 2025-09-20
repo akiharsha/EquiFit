@@ -2,6 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Any, Dict
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+import time
+import re
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -87,6 +92,51 @@ def health() -> Dict[str, Any]:
     return {"status": "ok"}
 
 
+# =====================
+# Admin Auth (JWT)
+# =====================
+SECRET_KEY = os.getenv("ADMIN_JWT_SECRET", "supersecret_admin_key_change_me")
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+
+security = HTTPBearer()
+
+
+class AdminLoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+def create_token(username: str, ttl_seconds: int = 60 * 60 * 8) -> str:
+    now = int(time.time())
+    payload = {
+        "sub": username,
+        "role": "admin",
+        "iat": now,
+        "exp": now + ttl_seconds,
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+
+def verify_admin(creds: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
+    token = creds.credentials
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])  # type: ignore
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+    if payload.get("role") != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    return payload
+
+
+@app.post("/admin/login")
+def admin_login(body: AdminLoginRequest) -> Dict[str, Any]:
+    if body.username != ADMIN_USERNAME or body.password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    token = create_token(body.username)
+    return {"token": token, "token_type": "bearer"}
+
+
 @app.get("/internships")
 def list_internships(limit: int = 20) -> List[Dict[str, Any]]:
     cols = [
@@ -94,6 +144,135 @@ def list_internships(limit: int = 20) -> List[Dict[str, Any]]:
         "Job_Description","Skills_Required","Min_CGPA","Min_Education_Level"
     ]
     return internships_df.head(limit)[cols].to_dict(orient="records")
+
+
+# =====================
+# Admin: Internship CRUD
+# =====================
+class InternshipPayload(BaseModel):
+    Title: str
+    Sector: Optional[str] = ""
+    Location: Optional[str] = ""
+    Mode: Optional[str] = ""
+    Industry_Type: Optional[str] = ""
+    Job_Description: Optional[str] = ""
+    Skills_Required: Optional[str] = ""
+    Min_CGPA: Optional[float] = 0.0
+    Min_Education_Level: Optional[str] = ""
+
+
+def _persist_internships():
+    # Persist current internships_df to CSV to keep state across restarts
+    try:
+        internships_df.to_csv(INTERNSHIPS_CSV, index=False)
+    except Exception as e:
+        # Log to console in absence of logging infra
+        print(f"[WARN] Failed to persist internships CSV: {e}")
+
+
+@app.get("/admin/internships")
+def admin_list_internships(limit: int = 100, _: Dict[str, Any] = Depends(verify_admin)) -> List[Dict[str, Any]]:
+    cols = [
+        "Internship_ID","Title","Sector","Location","Mode","Industry_Type",
+        "Job_Description","Skills_Required","Min_CGPA","Min_Education_Level"
+    ]
+    df = internships_df[cols]
+    return df.head(limit).to_dict(orient="records")
+
+
+@app.post("/admin/internships")
+def admin_add_internship(payload: InternshipPayload, _: Dict[str, Any] = Depends(verify_admin)) -> Dict[str, Any]:
+    global internships_df
+    # Determine next ID in the format like existing (e.g., I200 -> I201)
+    def compute_next_id() -> str:
+        try:
+            ids_series = internships_df.get("Internship_ID", pd.Series([], dtype=object))
+            all_ids = [str(x).strip() for x in ids_series.tolist() if str(x).strip() not in ("", "nan", "None")]
+            nums: List[int] = []
+            for s in all_ids:
+                # Prefer trailing number (works for I200, I011, 200, etc.)
+                m = re.search(r"(\d+)$", s)
+                if m:
+                    try:
+                        nums.append(int(m.group(1)))
+                        continue
+                    except Exception:
+                        pass
+                # Fallback: pure int conversion
+                try:
+                    nums.append(int(s))
+                except Exception:
+                    pass
+            next_num = (max(nums) + 1) if nums else 1
+            candidate = f"I{next_num}"
+            # Ensure uniqueness in case of collisions
+            existing_set = set(all_ids)
+            while candidate in existing_set:
+                next_num += 1
+                candidate = f"I{next_num}"
+            return candidate
+        except Exception:
+            return f"I{int(time.time())}"
+
+    next_id = compute_next_id()
+    row = {
+        "Internship_ID": next_id,
+        "Title": payload.Title,
+        "Sector": payload.Sector or "",
+        "Location": payload.Location or "",
+        "Mode": payload.Mode or "",
+        "Industry_Type": payload.Industry_Type or "",
+        "Job_Description": payload.Job_Description or "",
+        "Skills_Required": payload.Skills_Required or "",
+        "Min_CGPA": payload.Min_CGPA if payload.Min_CGPA is not None else 0.0,
+        "Min_Education_Level": payload.Min_Education_Level or "",
+    }
+    internships_df = pd.concat([internships_df, pd.DataFrame([row])], ignore_index=True)
+    # Recompute TF-IDF vectors for new row
+    try:
+        # Update the precomputed vectors for the appended row
+        jd_vec = tfidf.transform([str(row["Job_Description"])])
+        skills_vec = tfidf.transform([str(row["Skills_Required"])])
+        internships_df.at[internships_df.index[-1], "tfidf_vector_jd"] = list(jd_vec.toarray()[0])
+        internships_df.at[internships_df.index[-1], "tfidf_vector_skills"] = list(skills_vec.toarray()[0])
+    except Exception:
+        pass
+    _persist_internships()
+    return {"status": "created", "id": next_id}
+
+
+@app.put("/admin/internships/{internship_id}")
+def admin_update_internship(internship_id: str, payload: InternshipPayload, _: Dict[str, Any] = Depends(verify_admin)) -> Dict[str, Any]:
+    global internships_df
+    idx = internships_df.index[internships_df["Internship_ID"].astype(str) == str(internship_id)]
+    if len(idx) == 0:
+        raise HTTPException(status_code=404, detail="Internship not found")
+    i = idx[0]
+    for field in payload.model_fields.keys():
+        val = getattr(payload, field)
+        if val is not None:
+            internships_df.at[i, field] = val
+    # Recompute vectors for updated row
+    try:
+        jd_vec = tfidf.transform([str(internships_df.at[i, "Job_Description"])])
+        skills_vec = tfidf.transform([str(internships_df.at[i, "Skills_Required"])])
+        internships_df.at[i, "tfidf_vector_jd"] = list(jd_vec.toarray()[0])
+        internships_df.at[i, "tfidf_vector_skills"] = list(skills_vec.toarray()[0])
+    except Exception:
+        pass
+    _persist_internships()
+    return {"status": "updated", "id": internship_id}
+
+
+@app.delete("/admin/internships/{internship_id}")
+def admin_delete_internship(internship_id: str, _: Dict[str, Any] = Depends(verify_admin)) -> Dict[str, Any]:
+    global internships_df
+    before = len(internships_df)
+    internships_df = internships_df[internships_df["Internship_ID"].astype(str) != str(internship_id)].reset_index(drop=True)
+    if len(internships_df) == before:
+        raise HTTPException(status_code=404, detail="Internship not found")
+    _persist_internships()
+    return {"status": "deleted", "id": internship_id}
 
 
 def recommend_from_payload(candidate: CandidatePayload, top_n: int = 5, weights: Optional[List[float]] = None):

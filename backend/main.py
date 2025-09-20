@@ -164,7 +164,22 @@ class InternshipPayload(BaseModel):
 def _persist_internships():
     # Persist current internships_df to CSV to keep state across restarts
     try:
-        internships_df.to_csv(INTERNSHIPS_CSV, index=False)
+        base_cols = [
+            "Internship_ID",
+            "Title",
+            "Sector",
+            "Location",
+            "Mode",
+            "Industry_Type",
+            "Job_Description",
+            "Skills_Required",
+            "Min_CGPA",
+            "Min_Education_Level",
+        ]
+        # Only write base columns to avoid persisting derived TF-IDF vectors
+        # If any base column is missing (edge cases), fallback to available intersection
+        cols_to_write = [c for c in base_cols if c in internships_df.columns]
+        internships_df[cols_to_write].to_csv(INTERNSHIPS_CSV, index=False)
     except Exception as e:
         # Log to console in absence of logging infra
         print(f"[WARN] Failed to persist internships CSV: {e}")

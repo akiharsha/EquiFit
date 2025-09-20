@@ -1,0 +1,45 @@
+# Root .gitignore for EquiFit / PMIS Portal
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Python
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.env.*
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/.turbo/
+frontend/.vercel/
+frontend/.env
+frontend/.env.*
+
+# Build artifacts
+**/dist/
+**/build/
+
+# Data science cache/artifacts
+*.npy
+*.npz
+*.pkl
+*.pickle
+
+# Coverage / testing
+coverage/
+.nyc_output/
+
+# Misc
+*.swp
+*.swo

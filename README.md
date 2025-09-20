@@ -74,6 +74,15 @@ Open http://localhost:3000
 - Compare
   - Select multiple recommendations and click Compare to open `/compare?matches=…`
 
+### Admin Dashboard
+
+- Hidden route: `/admin`
+- Login with admin credentials (set via environment variables)
+- Manage internships: Add / Edit / Delete
+- Notes:
+  - The backend persists changes to `internships preprocessed 1.csv` (base columns only)
+  - JWT token is stored in `localStorage` on the admin page
+
 ### Optional Applicant ID
 
 - Enter an `Applicant ID` (e.g., `APP004`) on the form to backfill missing details from `preprocessed candidates 1.csv`
@@ -139,6 +148,24 @@ Response fields (partial):
   - Backend: 8000 (127.0.0.1)
   - Frontend: 3000
 - Paths: Backend reads CSVs from the project root via relative paths
+
+### Environment Variables
+
+- Backend (set in terminal or platform settings):
+  - `ADMIN_USERNAME` – admin username (e.g., `admin`)
+  - `ADMIN_PASSWORD` – admin password (e.g., `password123`)
+  - `ADMIN_JWT_SECRET` – strong secret for JWT signing
+- Frontend (optional for production):
+  - `NEXT_PUBLIC_API_BASE` – e.g., `https://your-backend.example.com`
+
+### Deployment
+
+- Recommended:
+  - Frontend on Vercel (root directory: `frontend/`)
+  - Backend on Render/Railway/Fly.io
+    - Start: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+    - Add a persistent disk or migrate internships to a database for durable writes
+  - Set CORS and environment variables appropriately
 
 ## Troubleshooting
 

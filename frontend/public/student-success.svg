@@ -1,0 +1,31 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f8f9fa"/>
+  
+  <!-- Success person -->
+  <circle cx="200" cy="100" r="40" fill="#FF6B35"/>
+  <rect x="170" y="140" width="60" height="80" rx="30" fill="#FF6B35"/>
+  
+  <!-- Arms raised in celebration -->
+  <rect x="140" y="150" width="30" height="8" rx="4" fill="#FF6B35" transform="rotate(-30 155 154)"/>
+  <rect x="230" y="150" width="30" height="8" rx="4" fill="#FF6B35" transform="rotate(30 245 154)"/>
+  
+  <!-- Certificate/Document -->
+  <rect x="280" y="120" width="60" height="80" fill="#ffffff" stroke="#dee2e6" stroke-width="2"/>
+  <rect x="290" y="130" width="40" height="4" fill="#138808"/>
+  <rect x="290" y="140" width="30" height="3" fill="#666"/>
+  <rect x="290" y="150" width="35" height="3" fill="#666"/>
+  <rect x="290" y="160" width="25" height="3" fill="#666"/>
+  
+  <!-- Success elements -->
+  <circle cx="150" cy="80" r="8" fill="#FFD700"/>
+  <polygon points="150,72 153,78 159,78 154,82 156,88 150,84 144,88 146,82 141,78 147,78" fill="#FFD700"/>
+  
+  <circle cx="250" cy="70" r="8" fill="#FFD700"/>
+  <polygon points="250,62 253,68 259,68 254,72 256,78 250,74 244,78 246,72 241,68 247,68" fill="#FFD700"/>
+  
+  <!-- Text -->
+  <text x="200" y="270" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#333">
+    Success Stories
+  </text>
+</svg>

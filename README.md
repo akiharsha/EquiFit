@@ -37,7 +37,7 @@ An AI-powered internship recommendation web app for the Prime Minister Internshi
 1) Backend – create venv and install dependencies
 
 ```
-cd "c:\EquiFit - Copy"
+cd "c:\EquiFit"
 py -3.12 -m venv .venv   # or: py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip setuptools wheel
@@ -56,7 +56,7 @@ Health check: http://127.0.0.1:8000/health
 3) Frontend – install and run
 
 ```
-cd "c:\EquiFit - Copy\frontend"
+cd "c:\EquiFit\frontend"
 npm install
 npm run dev
 ```

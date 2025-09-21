@@ -12,14 +12,19 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
+import json
 
 # Paths (relative to project root where CSVs are located)
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 INTERNSHIPS_CSV = os.path.join(PROJECT_ROOT, "internships preprocessed 1.csv")
 CANDIDATES_CSV = os.path.join(PROJECT_ROOT, "preprocessed candidates 1.csv")
+WEIGHTS_JSON = os.path.join(PROJECT_ROOT, "weights.json")
 
 # Load internships dataset once
-internships_df = pd.read_csv(INTERNSHIPS_CSV)
+def load_internships_df() -> pd.DataFrame:
+    return pd.read_csv(INTERNSHIPS_CSV)
+
+internships_df = load_internships_df()
 try:
     candidates_df = pd.read_csv(CANDIDATES_CSV)
 except Exception:
@@ -97,7 +102,7 @@ def health() -> Dict[str, Any]:
 # =====================
 SECRET_KEY = os.getenv("ADMIN_JWT_SECRET", "supersecret_admin_key_change_me")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "password123")
 
 security = HTTPBearer()
 
@@ -131,9 +136,17 @@ def verify_admin(creds: HTTPAuthorizationCredentials = Depends(security)) -> Dic
 
 @app.post("/admin/login")
 def admin_login(body: AdminLoginRequest) -> Dict[str, Any]:
-    if body.username != ADMIN_USERNAME or body.password != ADMIN_PASSWORD:
+    # Be forgiving to accidental spaces from form inputs
+    u = str(body.username).strip()
+    p = str(body.password).strip()
+    if u != ADMIN_USERNAME or p != ADMIN_PASSWORD:
+        # Minimal debug log without exposing password
+        try:
+            print(f"[AUTH] Failed admin login for username='{u}'")
+        except Exception:
+            pass
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    token = create_token(body.username)
+    token = create_token(u)
     return {"token": token, "token_type": "bearer"}
 
 
@@ -291,6 +304,10 @@ def admin_delete_internship(internship_id: str, _: Dict[str, Any] = Depends(veri
 
 
 def recommend_from_payload(candidate: CandidatePayload, top_n: int = 5, weights: Optional[List[float]] = None):
+    # Resolve default weights: saved weights if present, else hardcoded defaults
+    saved = _load_saved_weights()
+    if not weights:
+        weights = saved if (saved and len(saved) == 7) else [0.25, 0.20, 0.15, 0.15, 0.10, 0.10, 0.05]
     # If Applicant_ID provided and exists in candidates_df, backfill missing fields from CSV
     if getattr(candidate, "Applicant_ID", None) and not candidates_df.empty:
         try:
@@ -384,6 +401,8 @@ def recommend_from_payload(candidate: CandidatePayload, top_n: int = 5, weights:
         min_s, max_s = float(np.min(scores_full)), float(np.max(scores_full))
         if max_s - min_s > 1e-9:
             perc_full = (scores_full - min_s) / (max_s - min_s) * 100.0
+            # Clamp defensively to [0,100]
+            perc_full = np.clip(perc_full, 0.0, 100.0)
             tmp["matchPercentage"] = np.round(perc_full, 1)
         else:
             # Fallback: build a composite percentage from component metrics
@@ -403,7 +422,9 @@ def recommend_from_payload(candidate: CandidatePayload, top_n: int = 5, weights:
                 alt_norm = (alt - alt_min) / (alt_max - alt_min)
             else:
                 alt_norm = alt
-            tmp["matchPercentage"] = np.round(40.0 + alt_norm*55.0, 1)
+            perc_alt = 40.0 + alt_norm*55.0
+            perc_alt = np.clip(perc_alt, 0.0, 100.0)
+            tmp["matchPercentage"] = np.round(perc_alt, 1)
     else:
         tmp["matchPercentage"] = []
 
@@ -511,3 +532,59 @@ def recommend(req: RecommendationRequest):
         "count": len(df),
         "results": df.to_dict(orient="records")
     }
+
+# =====================
+# Admin: Weight tuning
+# =====================
+class WeightsBody(BaseModel):
+    weights: List[float]
+
+
+def _load_saved_weights() -> Optional[List[float]]:
+    try:
+        if os.path.exists(WEIGHTS_JSON):
+            with open(WEIGHTS_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list) and len(data) == 7:
+                return [float(x) for x in data]
+    except Exception:
+        return None
+    return None
+
+
+def _save_weights(weights: List[float]):
+    # normalize to sum 1.0; if all zeros, fallback to default
+    s = sum(weights)
+    if s > 1e-12:
+        norm = [float(x)/s for x in weights]
+    else:
+        norm = [0.25, 0.20, 0.15, 0.15, 0.10, 0.10, 0.05]
+    try:
+        with open(WEIGHTS_JSON, "w", encoding="utf-8") as f:
+            json.dump(norm, f)
+    except Exception:
+        pass
+    return norm
+
+
+@app.get("/admin/weights")
+def admin_get_weights(_: Dict[str, Any] = Depends(verify_admin)) -> Dict[str, Any]:
+    saved = _load_saved_weights()
+    if not saved:
+        saved = [0.25, 0.20, 0.15, 0.15, 0.10, 0.10, 0.05]
+    return {"weights": saved, "labels": [
+        "skills", "jd", "sector", "location", "mode", "cgpa", "edu"
+    ]}
+
+
+@app.post("/admin/weights")
+def admin_set_weights(body: WeightsBody, _: Dict[str, Any] = Depends(verify_admin)) -> Dict[str, Any]:
+    arr = body.weights or []
+    if len(arr) != 7:
+        raise HTTPException(status_code=422, detail="weights must be a list of 7 numbers")
+    try:
+        arr = [float(x) for x in arr]
+    except Exception:
+        raise HTTPException(status_code=422, detail="weights must be numeric")
+    norm = _save_weights(arr)
+    return {"status": "ok", "weights": norm}

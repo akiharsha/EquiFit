@@ -24,8 +24,7 @@ export default function DetailedRecommendationPage() {
     roleName: "Digital India Intern",
     location: "New Delhi",
     duration: "12 months",
-    stipend: "₹25,000/month",
-    matchPercentage: 94,
+    stipend: "₹5,000/month",
     applicationDeadline: "2024-01-15",
     roleDescription: "As a Digital India Intern, you'll work on cutting-edge government technology projects that impact millions of citizens. You'll contribute to digital transformation initiatives, develop citizen-centric applications, and learn about large-scale government technology implementation.",
     responsibilities: [
@@ -180,10 +179,6 @@ export default function DetailedRecommendationPage() {
               </div>
               
               <div className="text-center lg:text-right">
-                <div className={`inline-flex items-center px-6 py-3 rounded-full font-bold text-2xl mb-4 ${getMatchColor(match.matchPercentage)}`}>
-                  <Target className="w-6 h-6 mr-2" />
-                  {match.matchPercentage}% Match
-                </div>
                 <div className="text-3xl font-bold text-gray-900 mb-1">{match.stipend}</div>
                 <div className="text-lg text-gray-600">{match.duration}</div>
               </div>

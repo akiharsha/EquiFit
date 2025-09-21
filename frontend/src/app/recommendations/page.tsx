@@ -34,6 +34,7 @@ interface InternshipMatch {
   duration: string;
   stipend: string;
   matchPercentage: number;
+  mode: string;
   department: string;
   applicationDeadline: string;
   requirements: string[];
@@ -61,8 +62,9 @@ export default function RecommendationsPage() {
       roleName: "Digital India Intern",
       location: "New Delhi",
       duration: "12 months",
-      stipend: "₹25,000/month",
+      stipend: "₹5,000/month",
       matchPercentage: 94,
+      mode: "Hybrid",
       department: "Technology & Innovation",
       applicationDeadline: "2024-01-15",
       requirements: ["Computer Science/IT Background", "Programming Skills", "Digital Literacy"],
@@ -83,8 +85,10 @@ export default function RecommendationsPage() {
       roleName: "Engineering Trainee",
       location: "Bhopal",
       duration: "12 months",
-      stipend: "₹22,000/month",
+      stipend: "₹5,000/month",
       matchPercentage: 89,
+      mode: "In-person",
+      
       department: "Heavy Engineering",
       applicationDeadline: "2024-01-20",
       requirements: ["Engineering Degree", "Technical Aptitude", "Team Collaboration"],
@@ -105,8 +109,10 @@ export default function RecommendationsPage() {
       roleName: "Space Technology Intern",
       location: "Bengaluru",
       duration: "12 months",
-      stipend: "₹30,000/month",
+      stipend: "₹5,000/month",
       matchPercentage: 87,
+      mode: "Remote",
+      
       department: "Space Research",
       applicationDeadline: "2024-01-10",
       requirements: ["STEM Background", "Research Aptitude", "Innovation Mindset"],
@@ -127,8 +133,10 @@ export default function RecommendationsPage() {
       roleName: "Public Health Analyst",
       location: "New Delhi",
       duration: "12 months",
-      stipend: "₹20,000/month",
+      stipend: "₹5,000/month",
       matchPercentage: 82,
+      mode: "Hybrid",
+      
       department: "Healthcare Policy",
       applicationDeadline: "2024-01-25",
       requirements: ["Healthcare/Life Sciences Background", "Data Analysis", "Policy Interest"],
@@ -149,8 +157,10 @@ export default function RecommendationsPage() {
       roleName: "Energy Sector Trainee",
       location: "Mumbai",
       duration: "12 months",
-      stipend: "₹28,000/month",
+      stipend: "₹5,000/month",
       matchPercentage: 78,
+      mode: "In-person",
+      
       department: "Energy & Petroleum",
       applicationDeadline: "2024-02-01",
       requirements: ["Engineering/Science Background", "Energy Sector Interest", "Analytical Skills"],
@@ -205,6 +215,7 @@ export default function RecommendationsPage() {
               duration: "12 months",
               stipend: "₹5,000/month",
               matchPercentage: Number(r?.matchPercentage ?? 75),
+              mode: String(r?.Mode || 'In-person'),
               department: String(r?.Sector || 'General'),
               applicationDeadline: new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0,10),
               requirements: skills.slice(0, 5),
@@ -449,7 +460,7 @@ export default function RecommendationsPage() {
                   </div>
                 </div>
 
-                {/* Match Percentage */}
+                {/* Match Percentage + Stipend */}
                 <div className="flex items-center justify-between mb-4">
                   <div className={`px-4 py-2 rounded-full font-bold text-lg ${getMatchColor(match.matchPercentage)}`}>
                     <Target className="w-5 h-5 inline mr-2" />
@@ -462,7 +473,7 @@ export default function RecommendationsPage() {
                 </div>
 
                 {/* Quick Info */}
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <MapPin className="w-4 h-4" />
                     <span>{match.location}</span>
@@ -470,6 +481,10 @@ export default function RecommendationsPage() {
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Calendar className="w-4 h-4" />
                     <span>Apply by {new Date(match.applicationDeadline).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <Clock className="w-4 h-4" />
+                    <span>{match.mode}</span>
                   </div>
                 </div>
               </div>

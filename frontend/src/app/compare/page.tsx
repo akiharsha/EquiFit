@@ -19,7 +19,6 @@ interface ComparisonMatch {
   location: string;
   duration: string;
   stipend: string;
-  matchPercentage: number;
   department: string;
   applicationDeadline: string;
   benefits: string[];
@@ -49,7 +48,6 @@ export default function ComparisonPage() {
       location: "New Delhi",
       duration: "12 months",
       stipend: "₹25,000/month",
-      matchPercentage: 94,
       department: "Technology & Innovation",
       applicationDeadline: "2024-01-15",
       benefits: ["Government Certificate", "Mentorship", "Full-time Opportunity", "Health Insurance"],
@@ -79,7 +77,6 @@ export default function ComparisonPage() {
       location: "Bhopal",
       duration: "12 months",
       stipend: "₹22,000/month",
-      matchPercentage: 89,
       department: "Heavy Engineering",
       applicationDeadline: "2024-01-20",
       benefits: ["Industry Exposure", "Technical Training", "Career Growth", "Performance Bonus"],
@@ -109,7 +106,6 @@ export default function ComparisonPage() {
       location: "Bengaluru",
       duration: "12 months",
       stipend: "₹30,000/month",
-      matchPercentage: 87,
       department: "Space Research",
       applicationDeadline: "2024-01-10",
       benefits: ["ISRO Certificate", "Research Experience", "Space Technology Exposure", "Publication Opportunities"],
@@ -178,7 +174,7 @@ export default function ComparisonPage() {
               location: String(r?.Location || 'India'),
               duration: '12 months',
               stipend: '₹5,000/month',
-              matchPercentage: Number(r?.matchPercentage ?? 75),
+              
               department: String(r?.Sector || 'General'),
               applicationDeadline: new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0,10),
               benefits: ['Government Certificate', 'Mentorship', 'Career Growth'],
@@ -233,7 +229,7 @@ export default function ComparisonPage() {
             location: String(r?.Location || 'India'),
             duration: '12 months',
             stipend: '₹5,000/month',
-            matchPercentage: Number(r?.matchPercentage ?? 75),
+            
             department: String(r?.Sector || 'General'),
             applicationDeadline: new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0,10),
             benefits: ['Government Certificate', 'Mentorship', 'Career Growth'],
@@ -262,11 +258,7 @@ export default function ComparisonPage() {
     setComparisonData(comparisonData.filter(match => match.id !== matchId));
   };
 
-  const getMatchColor = (percentage: number) => {
-    if (percentage >= 90) return "text-green-600 bg-green-100";
-    if (percentage >= 80) return "text-blue-600 bg-blue-100";
-    return "text-orange-600 bg-orange-100";
-  };
+  
 
   const getCompanyTypeIcon = (type: string) => {
     switch (type) {
@@ -418,8 +410,8 @@ export default function ComparisonPage() {
                                 <span>{match.companyName}</span>
                               </p>
                             </div>
-                            <div className={`px-3 py-1 rounded-full font-bold ${getMatchColor(match.matchPercentage)}`}>
-                              {match.matchPercentage}% Match
+                            <div className="px-3 py-1 rounded-full font-bold bg-gray-100 text-gray-600">
+                              Match Found
                             </div>
                           </div>
                         </div>

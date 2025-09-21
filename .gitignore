@@ -35,6 +35,7 @@ frontend/.env.*
 *.npz
 *.pkl
 *.pickle
+weights.json
 
 # Coverage / testing
 coverage/

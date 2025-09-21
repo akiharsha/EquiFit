@@ -79,6 +79,7 @@ Open http://localhost:3000
 - Hidden route: `/admin`
 - Login with admin credentials (set via environment variables)
 - Manage internships: Add / Edit / Delete
+- Tune recommendation weights: adjust 7 sliders (skills, jd, sector, location, mode, cgpa, edu) and save; changes apply to future recommendations
 - Notes:
   - The backend persists changes to `internships preprocessed 1.csv` (base columns only)
   - JWT token is stored in `localStorage` on the admin page

@@ -242,6 +242,9 @@ export default function AdminDashboardPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
+        {/* Weights Tuning */}
+        <WeightsPanel token={token} headers={headers} />
+
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow border p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">{editing ? `Edit Internship #${editing.Internship_ID}` : "Add Internship"}</h2>
           <form onSubmit={submit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -338,6 +341,107 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function WeightsPanel({ token, headers }: { token: string; headers: Record<string,string> }) {
+  const [labels, setLabels] = useState<string[]>(["skills","jd","sector","location","mode","cgpa","edu"]);
+  const [weights, setWeights] = useState<number[]>([0.25,0.20,0.15,0.15,0.10,0.10,0.05]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const sum = weights.reduce((a,b)=>a+(Number.isFinite(b)?b:0),0);
+
+  const fetchWeights = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/weights`, { headers });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Load weights failed (${res.status}): ${txt}`);
+      }
+      const data = await res.json();
+      if (Array.isArray(data.labels)) setLabels(data.labels);
+      if (Array.isArray(data.weights) && data.weights.length===7) setWeights(data.weights.map((x:number)=>Number(x)));
+    } catch (e) {
+      console.error(e);
+      alert(String(e));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(()=>{ fetchWeights(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [token]);
+
+  const setWeight = (idx: number, val: number) => {
+    setWeights(w => {
+      const next = [...w];
+      next[idx] = val;
+      return next;
+    });
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/weights`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ weights })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Save weights failed (${res.status}): ${txt}`);
+      }
+      const data = await res.json();
+      if (Array.isArray(data.weights)) setWeights(data.weights.map((x:number)=>Number(x)));
+    } catch (e) {
+      console.error(e);
+      alert(String(e));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Normalized preview
+  const norm = (() => {
+    const s = sum;
+    if (s <= 1e-12) return weights.map(()=>0);
+    return weights.map(w => w/s);
+  })();
+
+  return (
+    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow border p-6 mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">Tune Recommendation Weights</h2>
+        <div className="text-sm text-gray-600">Sum: <span className={sum>1.001||sum<0.999?"text-red-600 font-semibold":"font-semibold"}>{sum.toFixed(3)}</span> (auto-normalized on save)</div>
+      </div>
+      {loading ? (
+        <div className="py-6 text-gray-500">Loading weights…</div>
+      ) : (
+        <div className="space-y-4">
+          {labels.map((label, i) => (
+            <div key={label} className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
+              <div className="md:col-span-1 font-medium capitalize">{label}</div>
+              <div className="md:col-span-4">
+                <input type="range" min={0} max={1} step={0.01} value={weights[i] ?? 0}
+                  onChange={(e)=>setWeight(i, parseFloat(e.target.value))}
+                  className="w-full" />
+              </div>
+              <div className="md:col-span-1 text-right text-sm">
+                <div>raw: {Number(weights[i] ?? 0).toFixed(2)}</div>
+                <div className="text-gray-500">norm: {Number(norm[i] ?? 0).toFixed(2)}</div>
+              </div>
+            </div>
+          ))}
+          <div className="flex gap-3 pt-2">
+            <button onClick={save} disabled={saving} className="govt-button px-6 disabled:opacity-60">{saving?"Saving…":"Save Weights"}</button>
+            <button onClick={fetchWeights} disabled={loading} className="px-4 py-2 rounded-xl border">Reset</button>
+          </div>
+          <p className="text-xs text-gray-500 pt-1">Labels map to engine components: skills, job description, sector, location, mode, cgpa, education.</p>
+        </div>
+      )}
     </div>
   );
 }

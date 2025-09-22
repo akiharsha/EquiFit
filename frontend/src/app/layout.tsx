@@ -1,4 +1,6 @@
+
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -75,6 +77,22 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
+        {/* Google Translate Widget */}
+        <div id="google_translate_element" style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 9999, background: 'white', borderRadius: 8, padding: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
+        <Script id="google-translate-init" strategy="afterInteractive">
+          {`
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement(
+                {pageLanguage: 'en'},
+                'google_translate_element'
+              );
+            }
+          `}
+        </Script>
+        <Script
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

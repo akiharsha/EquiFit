@@ -164,6 +164,7 @@ Response fields (partial):
 
 - A client-side Google Translate widget is integrated globally in `frontend/src/app/layout.tsx`.
 - It loads after hydration and appears as a small fixed widget at the bottom-right with a “Translate” label.
+- A custom language selector is provided with language names shown in their native language (e.g., हिन्दी, বাংলা, தமிழ்).
 - Included languages prioritize Indian languages.
 
 Default configuration (summary):
@@ -178,12 +179,14 @@ Default configuration (summary):
 Customization:
 
 - Change language list in `frontend/src/app/layout.tsx` under `includedLanguages`.
+- To change the custom selector options or order, edit the `<select id="pmis-language-select">` block in `frontend/src/app/layout.tsx`.
 - Move/resize widget by editing the wrapper classes near the `Translate` label.
 - Adjust dark mode/background/border via Tailwind classes on the container.
 - If needed, reduce `z-index` from `z-[9999]` to avoid covering modals.
 
 Notes:
 
+- The custom selector integrates with Google Translate by setting the `googtrans` cookie and, when available, programmatically updating the hidden `.goog-te-combo` select rendered by Google.
 - CSP: If you enable a strict Content Security Policy, allow:
   - `script-src`: `https://translate.google.com` `https://translate.googleapis.com`
   - `img-src/style-src/frame-src`: `https://*.gstatic.com` and Google Translate domains

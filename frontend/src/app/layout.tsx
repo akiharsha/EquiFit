@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
@@ -78,19 +77,37 @@ export default function RootLayout({
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
         {/* Google Translate Widget */}
-        <div id="google_translate_element" style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 9999, background: 'white', borderRadius: 8, padding: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
+        <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-2">
+          {/* Discoverability label */}
+          <div
+            aria-hidden
+            className="flex items-center gap-2 rounded-full bg-white text-gray-700 dark:bg-neutral-900 dark:text-gray-200 border border-gray-200 dark:border-neutral-700 px-3 py-1 shadow-md"
+          >
+            <span role="img" aria-label="language" className="text-base">🌐</span>
+            <span className="text-sm font-medium">Translate</span>
+          </div>
+          {/* Google-provided select will mount here */}
+          <div
+            id="google_translate_element"
+            className="bg-white dark:bg-neutral-900 rounded-md p-1 shadow-md border border-gray-200 dark:border-neutral-700"
+          />
+        </div>
         <Script id="google-translate-init" strategy="afterInteractive">
           {`
             function googleTranslateElementInit() {
               new google.translate.TranslateElement(
-                {pageLanguage: 'en'},
+                {
+                  pageLanguage: 'en',
+                  includedLanguages: 'hi,bn,te,mr,ta,ur,gu,kn,or,ml,pa,as,ne,sd,sa',
+                  layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                },
                 'google_translate_element'
               );
             }
           `}
         </Script>
         <Script
-          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
           strategy="afterInteractive"
         />
       </body>

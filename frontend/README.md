@@ -10,6 +10,7 @@ A modern, futuristic Progressive Web App (PWA) built with Next.js, TypeScript, a
 - **Cross-Platform**: Responsive design that works seamlessly on desktop, tablet, and mobile devices
 - **TypeScript**: Full type safety and enhanced developer experience
 - **Performance Optimized**: Built with Next.js 15 for optimal performance and SEO
+- **Multilingual UI (Google Translate)**: Bottom-right widget with prioritized Indian languages
 
 ## 🛠️ Tech Stack
 
@@ -80,6 +81,33 @@ npm start
 - **App-like Experience**: Standalone display mode
 - **Push Notifications**: Ready for future notification implementation
 - **Background Sync**: Automatic data synchronization when online
+
+## 🌐 Language Support (Google Translate)
+
+- A Google Translate widget is mounted globally in `src/app/layout.tsx`.
+- It appears as a small bottom-right widget with a "Translate" label and loads after hydration.
+- Uses inline simple layout to stay compact and unobtrusive.
+
+Default configuration:
+
+- Script: `https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit`
+- Options in `googleTranslateElementInit()`:
+  - `pageLanguage: 'en'`
+  - `includedLanguages: 'hi,bn,te,mr,ta,ur,gu,kn,or,ml,pa,as,ne,sd,sa'`
+  - `layout: google.translate.TranslateElement.InlineLayout.SIMPLE`
+
+Customization:
+
+- Update `includedLanguages` list in `src/app/layout.tsx` to add/remove languages.
+- Adjust position/appearance via the wrapper Tailwind classes near the widget (e.g., `bottom-4 right-4 z-[9999]`).
+- Tweak dark/light styling by editing the container classes.
+
+Notes:
+
+- CSP: If enforcing a strict Content Security Policy, allow:
+  - `script-src`: `https://translate.google.com` `https://translate.googleapis.com`
+  - `img-src/style-src/frame-src`: `https://*.gstatic.com` and Google Translate domains
+- SEO: This is client-side translation for user convenience; it does not generate localized, crawlable routes. Use Next.js i18n for SEO locales.
 
 ## 🎯 Key Sections
 

@@ -9,6 +9,7 @@ An AI-powered internship recommendation web app for the Prime Minister Internshi
 - Transparent AI explanations: contribution percentages and reasons per match
 - Comparison tool to view multiple internships side-by-side
 - Optional Applicant ID to prefill candidate details from CSV
+- Multilingual UI via Google Translate widget (priority for Indian languages)
 
 ## Repository Structure
 
@@ -158,6 +159,36 @@ Response fields (partial):
   - `ADMIN_JWT_SECRET` – strong secret for JWT signing
 - Frontend (optional for production):
   - `NEXT_PUBLIC_API_BASE` – e.g., `https://your-backend.example.com`
+
+## Language Support (Google Translate)
+
+- A client-side Google Translate widget is integrated globally in `frontend/src/app/layout.tsx`.
+- It loads after hydration and appears as a small fixed widget at the bottom-right with a “Translate” label.
+- Included languages prioritize Indian languages.
+
+Default configuration (summary):
+
+- Container: `#google_translate_element` inside a fixed wrapper with Tailwind light/dark styling.
+- Loader: `https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit`
+- Init: `googleTranslateElementInit()` sets
+  - `pageLanguage: 'en'`
+  - `includedLanguages: 'hi,bn,te,mr,ta,ur,gu,kn,or,ml,pa,as,ne,sd,sa'`
+  - `layout: google.translate.TranslateElement.InlineLayout.SIMPLE`
+
+Customization:
+
+- Change language list in `frontend/src/app/layout.tsx` under `includedLanguages`.
+- Move/resize widget by editing the wrapper classes near the `Translate` label.
+- Adjust dark mode/background/border via Tailwind classes on the container.
+- If needed, reduce `z-index` from `z-[9999]` to avoid covering modals.
+
+Notes:
+
+- CSP: If you enable a strict Content Security Policy, allow:
+  - `script-src`: `https://translate.google.com` `https://translate.googleapis.com`
+  - `img-src/style-src/frame-src`: `https://*.gstatic.com` and Google Translate domains
+- SEO: This is client-side machine translation for user convenience; it does not create crawlable localized routes. Use Next.js i18n for SEO-targeted locales.
+- Privacy/performance: For extra control, you can lazy-load the script only after a user clicks the label/button.
 
 ### Deployment
 

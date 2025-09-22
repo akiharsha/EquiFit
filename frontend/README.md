@@ -166,4 +166,4 @@ For support or questions, please open an issue in the repository.
 
 ---
 
-Built with ❤️ by the EquiFit Team
+Built with ❤️ by the EquiFit Team 11
